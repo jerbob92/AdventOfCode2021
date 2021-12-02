@@ -7,24 +7,23 @@ import (
 	"strconv"
 )
 
-func main(){
-	slidingWindowSize := 3
-
+func main() {
 	file, err := os.Open("day1/input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	currentDepthIndex := 0
+	// Configure the window size to compare with.
+	slidingWindowSize := 3
 
 	// Keep track of amount of increments.
 	amountOfIncrements := 0
 	amountOfSlidingWindowIncrements := 0
 
-	// Keep track of previous values.
-	var previousDepth *int
-	slidingWindowHistory := make([]int, slidingWindowSize)
+	// Keep track of state.
+	depthHistory := make([]int, slidingWindowSize)
+	currentDepthIndex := 0
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -33,23 +32,21 @@ func main(){
 			continue
 		}
 
-		if previousDepth != nil && depth > *previousDepth {
+		if currentDepthIndex > 0 && depth > depthHistory[slidingWindowSize-1] {
 			amountOfIncrements++
 		}
 
-		previousDepth = &depth
-
 		// Compare previous window to current window.
 		if currentDepthIndex >= slidingWindowSize {
-			previousSlidingWindowSize := sumIntSlice(slidingWindowHistory)
-			currentSlidingWindowSize := (previousSlidingWindowSize - slidingWindowHistory[0]) + depth
+			previousSlidingWindowSize := sumIntSlice(depthHistory)
+			currentSlidingWindowSize := (previousSlidingWindowSize - depthHistory[0]) + depth
 			if currentSlidingWindowSize > previousSlidingWindowSize {
 				amountOfSlidingWindowIncrements++
 			}
 		}
 
 		// Rewrite sliding window history
-		slidingWindowHistory = append(slidingWindowHistory[1:], depth)
+		depthHistory = append(depthHistory[1:], depth)
 		currentDepthIndex++
 	}
 
