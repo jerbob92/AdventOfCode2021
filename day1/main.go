@@ -46,7 +46,8 @@ func main() {
 		}
 
 		// Rewrite sliding window history
-		depthHistory = append(depthHistory[1:], depth)
+		copy(depthHistory, depthHistory[1:])
+		depthHistory[slidingWindowSize-1] = depth
 		currentDepthIndex++
 	}
 
