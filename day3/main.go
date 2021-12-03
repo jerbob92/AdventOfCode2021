@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"log"
 	"os"
-	"strconv"
 )
 
 func main() {
@@ -29,21 +28,15 @@ func main() {
 		amountOfReports++
 	}
 
-	epsilonRate := ""
-	gammaRate := ""
-
-	for _, reportSum := range reportSums {
+	epsilonRate := int64(0)
+	gammaRate := int64(0)
+	for pos, reportSum := range reportSums {
 		if reportSum > (amountOfReports / 2) {
-			epsilonRate += "1"
-			gammaRate += "0"
+			epsilonRate |= (1 << (reportSize - pos - 1))
 		} else {
-			epsilonRate += "0"
-			gammaRate += "1"
+			gammaRate |= (1 << (reportSize - pos - 1))
 		}
 	}
 
-	epsilonRateInt, _ := strconv.ParseInt(epsilonRate, 2, 64)
-	gammaRateInt, _ := strconv.ParseInt(gammaRate, 2, 64)
-
-	log.Printf("Epsilon rate: %s (%d), gamma rate: %s (%d), power consumtion: %d", epsilonRate, epsilonRateInt, gammaRate, gammaRateInt, epsilonRateInt * gammaRateInt)
+	log.Printf("Epsilon rate: %b (%d), gamma rate: %b (%d), power consumtion: %d", epsilonRate, epsilonRate, gammaRate, gammaRate, epsilonRate*gammaRate)
 }
