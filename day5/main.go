@@ -10,6 +10,8 @@ import (
 
 type VentMap struct {
 	Vents map[int]map[int]int
+
+	// Only used for printing.
 	MaxX  int
 	MaxY  int
 }
@@ -31,10 +33,10 @@ func (v *VentMap) ensureLocation(x, y int) {
 		v.Vents[x][y] = 0
 	}
 
+	// Keep track of max x and max for printing a pretty map.
 	if x > v.MaxX {
 		v.MaxX = x
 	}
-
 	if y > v.MaxY {
 		v.MaxY = y
 	}
@@ -42,7 +44,10 @@ func (v *VentMap) ensureLocation(x, y int) {
 
 // Mark will mark a vent on the map and ensure the location is on the map.
 func (v *VentMap) Mark(x, y int) {
+	// First ensure the location.
 	v.ensureLocation(x, y)
+
+	// Now that we have the location on the map, add a vent.
 	v.Vents[x][y]++
 }
 
