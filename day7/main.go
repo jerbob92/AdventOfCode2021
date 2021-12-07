@@ -50,10 +50,7 @@ func main() {
 				// Calculate te distance, sadly math.Abs only supports floats.
 				distance := int(math.Abs(float64(position) - float64(currentPosition)))
 				if exponentialFuelCost {
-					// @TODO: improve me, this must be possible in one calculation?
-					for startDistance := 1; startDistance <= distance; startDistance++ {
-						fuelUsedForPosition += startDistance * crabCount
-					}
+					fuelUsedForPosition += (distance * (distance + 1) / 2) * crabCount
 				} else {
 					fuelUsedForPosition += distance * crabCount
 				}
