@@ -49,6 +49,9 @@ func main() {
 
 	displayValues := []*DisplayValue{}
 
+	// Keep track of unique values for part 1.
+	uniqueValueCount := 0
+
 	// First parse the input into signal patterns and output values.
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -56,57 +59,53 @@ func main() {
 		lineParts := strings.Split(line, " | ")
 		signalPatterns := strings.Split(lineParts[0], " ")
 		outputValues := strings.Split(lineParts[1], " ")
-		displayValues = append(displayValues, &DisplayValue{
+		displayValue := &DisplayValue{
 			SignalPatterns: signalPatterns,
 			OutputValues:   outputValues,
 			Values:         append(signalPatterns, outputValues...),
 			KnownSignals:   map[int]string{},
-		})
-	}
+		}
 
-	// Part 1:
-	uniqueValueCount := 0
-	for displayI := range displayValues {
-		for outputValueI := range displayValues[displayI].OutputValues {
-			output := displayValues[displayI].OutputValues[outputValueI]
-			outputLen := len(output)
-			switch outputLen {
+		// Calculate part 1:
+		for outputValueI := range displayValue.OutputValues {
+			switch len(displayValue.OutputValues[outputValueI]) {
 			case 2, 3, 4, 7:
 				uniqueValueCount++
-			default:
-				// Unknown value.
 			}
 		}
+
+		// Prepare part 2.
+		// Save the known signals for unique numbers.
+		for valueI := range displayValue.Values {
+			output := displayValue.Values[valueI]
+			switch len(output) {
+			case 2:
+				displayValue.KnownSignals[1] = output
+			case 3:
+				displayValue.KnownSignals[7] = output
+			case 4:
+				displayValue.KnownSignals[4] = output
+			case 7:
+				displayValue.KnownSignals[8] = output
+			}
+		}
+
+		displayValues = append(displayValues, displayValue)
 	}
 
 	log.Printf("Part 1: digits 1, 4, 7, or 8 appear %d times", uniqueValueCount)
-
-	// Prepare part 2.
-	for displayI := range displayValues {
-		for valueI := range displayValues[displayI].Values {
-			output := displayValues[displayI].Values[valueI]
-			outputLen := len(output)
-			switch outputLen {
-			case 2:
-				displayValues[displayI].KnownSignals[1] = output
-			case 3:
-				displayValues[displayI].KnownSignals[7] = output
-			case 4:
-				displayValues[displayI].KnownSignals[4] = output
-			case 7:
-				displayValues[displayI].KnownSignals[8] = output
-			}
-		}
-	}
 
 	// Part 2:
 	totalOfAllNumbers := 0
 	for displayI := range displayValues {
 		displayOutput := ""
+
+		// Loop through the output values, convert them to number one by one.
 		for outputValueI := range displayValues[displayI].OutputValues {
 			output := displayValues[displayI].OutputValues[outputValueI]
-			outputLen := len(output)
-			switch outputLen {
+
+			// Check the output length, some numbers are already unique.
+			switch len(output) {
 			case 2:
 				displayOutput += "1"
 			case 3:
@@ -114,9 +113,14 @@ func main() {
 			case 4:
 				displayOutput += "4"
 			case 5, 6:
-				signalOverlaps := map[int]int{}
 				// If we have 5 or 6 signals, we have to try to figure out which number it is.
 				// The numbers left are 0, 2, 3, 5, 6, 9
+
+				// Keep track of the amount of overlaps with known numbers.
+				signalOverlaps := map[int]int{}
+
+				// Figure out the amount of overlaps with this display value and the known numbers.
+				// We need this for the lookup table later on.
 				for knownSignalNumber, knownSignal := range displayValues[displayI].KnownSignals {
 					if _, ok := signalOverlaps[knownSignalNumber]; !ok {
 						signalOverlap := amountOfSignalOverlap(output, knownSignal)
@@ -124,10 +128,21 @@ func main() {
 					}
 				}
 
+				// Keep track of the amount of points for overlap with each known number.
+				// Since each combination of overlap in unknown and known numbers
+				// results in a unique number, we can then figure out which number it is.
 				candidatePoints := map[int]int{}
+
+				// Loop through the overlap stats.
 				for signalOverlapsNumber, signalOverlapsOverlap := range signalOverlaps {
+
+					// Lookup the current known number in the overlap table.
 					if table, ok := OverlapTable[signalOverlapsNumber]; ok {
+
+						// Get the candidates from the map that have this amount of overlap.
 						if candidates, ok := table[signalOverlapsOverlap]; ok {
+
+							// For each candidate, add one point.
 							for candidateI := range candidates {
 								candidatePoints[candidates[candidateI]]++
 							}
@@ -139,8 +154,7 @@ func main() {
 					}
 				}
 
-
-				// Find the number with the highest overlap.
+				// Find the canidate number with the highest overlap.
 				highestCandidate := -1
 				highestCandidateOverlap := 0
 				for number, overlap := range candidatePoints {
