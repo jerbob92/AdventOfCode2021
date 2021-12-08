@@ -39,12 +39,12 @@ func (b *BingoBoard) String() string {
 				valToPrint = "_" + valToPrint + "_"
 			}
 			vals = append(vals, valToPrint)
-			total+= val
+			total += val
 			colSums[colI] += val
 		}
 
-		vals = append(vals, "Begin sum:" + strconv.Itoa(total))
-		vals = append(vals, "Current sum:" + strconv.Itoa(b.RowSums[i]))
+		vals = append(vals, "Begin sum:"+strconv.Itoa(total))
+		vals = append(vals, "Current sum:"+strconv.Itoa(b.RowSums[i]))
 
 		printedRows = append(printedRows, strings.Join(vals, "\t"))
 	}

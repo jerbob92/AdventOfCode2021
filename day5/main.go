@@ -12,8 +12,8 @@ type VentMap struct {
 	Vents map[int]map[int]int
 
 	// Only used for printing.
-	MaxX  int
-	MaxY  int
+	MaxX int
+	MaxY int
 }
 
 // ensureLocation will make sure the maps have a value for the location.

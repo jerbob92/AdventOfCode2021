@@ -48,7 +48,7 @@ func main() {
 				} else {
 					// Move every timer one down in the timer array, because one
 					// day has progressed.
-					fishTimers[timer - 1] = fishCount
+					fishTimers[timer-1] = fishCount
 				}
 			}
 
@@ -68,7 +68,7 @@ func main() {
 	log.Printf("Part 1: Amount of fish after %d days: %d", part1Days, totalFish)
 
 	part2Days := 256
-	progressDays(part2Days-part1Days)
+	progressDays(part2Days - part1Days)
 	log.Printf("Part 2: Amount of fish after %d days: %d", part2Days, totalFish)
 }
 
