@@ -9,10 +9,8 @@ import (
 )
 
 type DisplayValue struct {
-	SignalPatterns []string
-	OutputValues   []string
-	Values         []string
-	KnownSignals   map[int]string
+	OutputValues []string
+	KnownSignals map[int]string
 }
 
 // OverlapTable maps how much overlap numbers have with other numbers.
@@ -60,10 +58,8 @@ func main() {
 		signalPatterns := strings.Split(lineParts[0], " ")
 		outputValues := strings.Split(lineParts[1], " ")
 		displayValue := &DisplayValue{
-			SignalPatterns: signalPatterns,
-			OutputValues:   outputValues,
-			Values:         append(signalPatterns, outputValues...),
-			KnownSignals:   map[int]string{},
+			OutputValues: outputValues,
+			KnownSignals: map[int]string{},
 		}
 
 		// Calculate part 1:
@@ -76,8 +72,7 @@ func main() {
 
 		// Prepare part 2.
 		// Save the known signals for unique numbers.
-		for valueI := range displayValue.Values {
-			output := displayValue.Values[valueI]
+		for _, output := range append(signalPatterns, outputValues...) {
 			switch len(output) {
 			case 2:
 				displayValue.KnownSignals[1] = output
@@ -122,10 +117,8 @@ func main() {
 				// Figure out the amount of overlaps with this display value and the known numbers.
 				// We need this for the lookup table later on.
 				for knownSignalNumber, knownSignal := range displayValues[displayI].KnownSignals {
-					if _, ok := signalOverlaps[knownSignalNumber]; !ok {
-						signalOverlap := amountOfSignalOverlap(output, knownSignal)
-						signalOverlaps[knownSignalNumber] = signalOverlap
-					}
+					signalOverlap := amountOfSignalOverlap(output, knownSignal)
+					signalOverlaps[knownSignalNumber] = signalOverlap
 				}
 
 				// Keep track of the amount of points for overlap with each known number.
@@ -133,28 +126,17 @@ func main() {
 				// results in a unique number, we can then figure out which number it is.
 				candidatePoints := map[int]int{}
 
-				// Loop through the overlap stats.
+				// Loop through the overlap stats to get the candidates per overlap count.
 				for signalOverlapsNumber, signalOverlapsOverlap := range signalOverlaps {
-
 					// Lookup the current known number in the overlap table.
-					if table, ok := OverlapTable[signalOverlapsNumber]; ok {
-
-						// Get the candidates from the map that have this amount of overlap.
-						if candidates, ok := table[signalOverlapsOverlap]; ok {
-
-							// For each candidate, add one point.
-							for candidateI := range candidates {
-								candidatePoints[candidates[candidateI]]++
-							}
-						} else {
-							log.Printf("Could not find candidates for number %d and overlap amount %d", signalOverlapsNumber, signalOverlapsOverlap)
-						}
-					} else {
-						log.Printf("Could not find overlap table for number %d", signalOverlapsNumber)
+					// Get the candidates from that map that have this amount of overlap.
+					// For each candidate in that map value, add one point.
+					for candidateI := range OverlapTable[signalOverlapsNumber][signalOverlapsOverlap] {
+						candidatePoints[OverlapTable[signalOverlapsNumber][signalOverlapsOverlap][candidateI]]++
 					}
 				}
 
-				// Find the canidate number with the highest overlap.
+				// Find the candidate number with the highest overlap.
 				highestCandidate := -1
 				highestCandidateOverlap := 0
 				for number, overlap := range candidatePoints {
@@ -177,13 +159,16 @@ func main() {
 	log.Printf("Part 2: sum of all output numbers: %d", totalOfAllNumbers)
 }
 
+// amountOfSignalOverlap returns the amount of chars 2 strings overlap.
 func amountOfSignalOverlap(a, b string) int {
-	overlap := 0
+	// Create an index of known chars in string a.
 	aIndex := map[string]bool{}
 	for i := range a {
 		aIndex[string(a[i])] = true
 	}
 
+	// Loop through string b to see if it is also in a using the index.
+	overlap := 0
 	for i := range b {
 		if _, ok := aIndex[string(b[i])]; ok {
 			overlap++
