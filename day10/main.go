@@ -7,11 +7,6 @@ import (
 	"sort"
 )
 
-type Grid struct {
-	Grid [][]int
-	Seen map[int]map[int]bool
-}
-
 func main() {
 	file, err := os.Open("day10/input.txt")
 	if err != nil {
@@ -72,7 +67,6 @@ func main() {
 				}
 				// End chunk, test if this is the expected char.
 				if stringChar != expected {
-					//log.Printf("Expected %s, but found %s instead, points: %d", expected, stringChar, illegalPoints[stringChar])
 					syntaxErrorScore += illegalPoints[stringChar]
 					corruptedLine = true
 					continue
