@@ -50,7 +50,7 @@ func (g *Grid) Flash(x, y int) int {
 			g.Flashed[y][x] = true
 
 			// Flash my neighbours, register my flash and that of my neighbours.
-			flashes+= 1 + g.FlashNeighbours(x, y)
+			flashes += 1 + g.FlashNeighbours(x, y)
 		}
 	}
 
@@ -190,7 +190,7 @@ func main() {
 		}
 
 		// Part 2 answer, when all octopuses flash at the same time.
-		if stepFlashes == len(grid.Grid) * len(grid.Grid) {
+		if stepFlashes == len(grid.Grid)*len(grid.Grid) {
 			log.Printf("Part 2: first step that all octopuses flashed: %d", step)
 
 			// Quit when we have the answer for part 2.
