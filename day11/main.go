@@ -13,11 +13,6 @@ type Grid struct {
 	Flashed map[int]map[int]bool
 }
 
-type Pos struct {
-	X int
-	Y int
-}
-
 // Print prints the current grid.
 func (g *Grid) Print() {
 	for yi := 0; yi < len(g.Grid); yi++ {
@@ -31,6 +26,11 @@ func (g *Grid) Print() {
 
 // Flash flashes a single position. Returns the flashes.
 func (g *Grid) Flash(x, y int) int {
+	// Flashes outside the grid don't do anything.
+	if x < 0 || y < 0 || y > len(g.Grid)-1 || x > len(g.Grid[y])-1 {
+		return 0
+	}
+
 	flashes := 0
 
 	// I can only flash once per step.
@@ -58,58 +58,24 @@ func (g *Grid) Flash(x, y int) int {
 }
 
 // FlashNeighbours flashes the neighbours, pun intended.
+// It returns the amount of flashes of the neighbours.
 func (g *Grid) FlashNeighbours(x, y int) int {
-	// Collect all possible neighbours.
-	neighbours := []Pos{
-		// Same row
-		{
-			X: x - 1,
-			Y: y,
-		},
-		{
-			X: x + 1,
-			Y: y,
-		},
-		// Row above
-		{
-			X: x - 1,
-			Y: y - 1,
-		},
-		{
-			X: x,
-			Y: y - 1,
-		},
-		{
-			X: x + 1,
-			Y: y - 1,
-		},
-		// Row below
-		{
-			X: x - 1,
-			Y: y + 1,
-		},
-		{
-			X: x,
-			Y: y + 1,
-		},
-		{
-			X: x + 1,
-			Y: y + 1,
-		},
-	}
-
+	// Flash every neighbour and count their flashes.
 	totalFlashes := 0
 
-	// Flash every neighbour.
-	for _, neighbour := range neighbours {
-		// Skip invalid neighbours.
-		if neighbour.X < 0 || neighbour.Y < 0 || neighbour.Y > len(g.Grid)-1 || neighbour.X > len(g.Grid[neighbour.Y])-1 {
-			continue
-		}
+	// Row above.
+	totalFlashes += g.Flash(x-1, y-1)
+	totalFlashes += g.Flash(x, y-1)
+	totalFlashes += g.Flash(x+1, y-1)
 
-		// Flash my position and count the flashes.
-		totalFlashes += g.Flash(neighbour.X, neighbour.Y)
-	}
+	// Same row.
+	totalFlashes += g.Flash(x-1, y)
+	totalFlashes += g.Flash(x+1, y)
+
+	// Row below.
+	totalFlashes += g.Flash(x-1, y+1)
+	totalFlashes += g.Flash(x, y+1)
+	totalFlashes += g.Flash(x+1, y+1)
 
 	return totalFlashes
 }
